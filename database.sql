@@ -1,6 +1,3 @@
-CREATE DATABASE IF NOT EXISTS semesta_buku;
-USE semesta_buku;
-
 -- Tabel Users (Admin)
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
