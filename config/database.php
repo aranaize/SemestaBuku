@@ -1,8 +1,9 @@
 <?php
-$host = 'localhost';
-$user = 'root';
-$pass = ''; // Default Laragon password kosong
-$db   = 'semesta_buku';
+
+$host = 'sql113.infinityfree.com'; 
+$user = 'if0_43143021';            
+$pass = 'iniakunaran';      
+$db   = 'if0_43143021_semesta_buku'; 
 
 $conn = mysqli_connect($host, $user, $pass, $db);
 
