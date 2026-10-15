@@ -28,3 +28,6 @@ CREATE TABLE IF NOT EXISTS peminjaman (
     status ENUM('dipinjam', 'dikembalikan') DEFAULT 'dipinjam',
     FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE
 );
+
+-- Default Admin (Username: admin, Password: admin123)
+INSERT INTO users (username, password) VALUES ('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
