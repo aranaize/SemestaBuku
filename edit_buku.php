@@ -1,122 +1,84 @@
 <?php
 session_start();
-require_once 'config/database.php';
-
-if (!isset($_SESSION['admin'])) {
+if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
-    exit();
+    exit;
 }
+include 'config/database.php';
 
-$id = (int)$_GET['id'];
-$result = mysqli_query($conn, "SELECT * FROM books WHERE id = $id");
-$book = mysqli_fetch_assoc($result);
+$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+$result = mysqli_query($conn, "SELECT * FROM books WHERE id=$id");
+$buku = mysqli_fetch_assoc($result);
 
-if (!$book) {
+if (!$buku) {
     header("Location: admin.php");
-    exit();
+    exit;
 }
 
-$message = '';
-
-if (isset($_POST['update_book'])) {
-    $judul    = mysqli_real_escape_string($conn, $_POST['judul']);
-    $penulis  = mysqli_real_escape_string($conn, $_POST['penulis']);
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $judul = mysqli_real_escape_string($conn, $_POST['judul']);
+    $penulis = mysqli_real_escape_string($conn, $_POST['penulis']);
     $kategori = mysqli_real_escape_string($conn, $_POST['kategori']);
-    $isbn     = mysqli_real_escape_string($conn, $_POST['isbn']);
-    $stok     = (int)$_POST['stok'];
+    $isbn = mysqli_real_escape_string($conn, $_POST['isbn']);
+    $stok = (int)$_POST['stok'];
+    $cover = mysqli_real_escape_string($conn, $_POST['cover']);
 
-    $cover_name = $_FILES['cover']['name'];
-
-    // Jika admin mengganti foto cover
-    if (!empty($cover_name)) {
-        $cover_tmp = $_FILES['cover']['tmp_name'];
-        $cover_ext = strtolower(pathinfo($cover_name, PATHINFO_EXTENSION));
-        $allowed   = ['jpg', 'jpeg', 'png', 'webp'];
-
-        if (in_array($cover_ext, $allowed)) {
-            $new_cover_name = time() . '_' . uniqid() . '.' . $cover_ext;
-            
-            // Hapus foto lama
-            if (!empty($book['cover']) && file_exists('uploads/' . $book['cover'])) {
-                unlink('uploads/' . $book['cover']);
-            }
-
-            move_uploaded_file($cover_tmp, 'uploads/' . $new_cover_name);
-            $query_cover = ", cover='$new_cover_name'";
-        } else {
-            $message = "Format gambar tidak didukung!";
-        }
-    } else {
-        $query_cover = "";
-    }
-
-    if (!$message) {
-        $update = "UPDATE books SET 
-                   judul='$judul', 
-                   penulis='$penulis', 
-                   kategori='$kategori', 
-                   isbn='$isbn', 
-                   stok=$stok $query_cover 
-                   WHERE id=$id";
-
-        if (mysqli_query($conn, $update)) {
-            header("Location: admin.php");
-            exit();
-        } else {
-            $message = "Gagal memperbarui data.";
-        }
-    }
+    mysqli_query($conn, "UPDATE books SET judul='$judul', penulis='$penulis', kategori='$kategori', isbn='$isbn', stok=$stok, cover='$cover' WHERE id=$id");
+    header("Location: admin.php");
+    exit;
 }
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Edit Buku - SEMESTA BUKU</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Buku - SemestaBuku</title>
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-    <header>
-        <a href="admin.php" class="logo">SEMESTA BUKU (Admin)</a>
-        <a href="admin.php" class="btn-pill">Kembali ke Dashboard</a>
-    </header>
+    <nav class="navbar">
+        <a href="admin.php" class="nav-brand">🌿 Edit Buku SemestaBuku</a>
+        <div class="nav-links">
+            <a href="admin.php">Kembali ke Dashboard</a>
+        </div>
+    </nav>
 
-    <div class="section-wrapper">
-        <div class="form-card" style="max-width: 600px; margin: 2rem auto;">
-            <h3>Edit Data Buku</h3>
-            <?php if ($message): ?>
-                <p style="color: #ef4444; margin-top: 0.5rem;"><?= $message ?></p>
-            <?php endif; ?>
-
-            <form action="" method="POST" enctype="multipart/form-data" style="margin-top: 1rem;">
+    <div class="container">
+        <div class="form-container" style="max-width: 600px;">
+            <h2 class="section-title" style="text-align: center;">Edit Data Buku</h2>
+            <form method="POST">
                 <div class="form-group">
                     <label>Judul Buku</label>
-                    <input type="text" name="judul" class="form-control" value="<?= htmlspecialchars($book['judul']) ?>" required>
+                    <input type="text" name="judul" value="<?php echo htmlspecialchars($buku['judul']); ?>" required>
                 </div>
                 <div class="form-group">
                     <label>Penulis</label>
-                    <input type="text" name="penulis" class="form-control" value="<?= htmlspecialchars($book['penulis']) ?>" required>
+                    <input type="text" name="penulis" value="<?php echo htmlspecialchars($buku['penulis']); ?>" required>
                 </div>
                 <div class="form-group">
                     <label>Kategori</label>
-                    <input type="text" name="kategori" class="form-control" value="<?= htmlspecialchars($book['kategori']) ?>" required>
+                    <input type="text" name="kategori" value="<?php echo htmlspecialchars($buku['kategori']); ?>" required>
                 </div>
                 <div class="form-group">
                     <label>ISBN</label>
-                    <input type="text" name="isbn" class="form-control" value="<?= htmlspecialchars($book['isbn']) ?>" required>
+                    <input type="text" name="isbn" value="<?php echo htmlspecialchars($buku['isbn']); ?>" required>
                 </div>
                 <div class="form-group">
-                    <label>Stok Buku</label>
-                    <input type="number" name="stok" class="form-control" value="<?= $book['stok'] ?>" required min="0">
+                    <label>Stok</label>
+                    <input type="number" name="stok" value="<?php echo $buku['stok']; ?>" required>
                 </div>
                 <div class="form-group">
-                    <label>Ganti Cover Buku (Opsional)</label>
-                    <input type="file" name="cover" class="form-control" accept="image/*">
-                    <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.3rem;">Cover saat ini: <?= htmlspecialchars($book['cover']) ?></p>
+                    <label>URL Cover Buku</label>
+                    <input type="text" name="cover" value="<?php echo htmlspecialchars($buku['cover']); ?>">
                 </div>
-                <button type="submit" name="update_book" class="btn-pill" style="width: 100%; padding: 0.8rem;">Simpan Perubahan</button>
+                <button type="submit" class="btn-pill" style="width: 100%; text-align: center;">Simpan Perubahan</button>
             </form>
         </div>
     </div>
+
+    <footer>
+        <p>&copy; 2026 SemestaBuku.</p>
+    </footer>
 </body>
 </html>

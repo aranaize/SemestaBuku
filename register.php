@@ -1,19 +1,21 @@
 <?php
-require_once 'config/database.php';
+include 'config/database.php';
+$success = '';
+$error = '';
 
-$message = '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = mysqli_real_escape_string($conn, $_POST['username']);
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-    $checkUser = mysqli_query($conn, "SELECT * FROM users WHERE username = '$username'");
-    if (mysqli_num_rows($checkUser) > 0) {
-        $message = "Username sudah digunakan!";
+    $check = mysqli_query($conn, "SELECT * FROM users WHERE username='$username'");
+    if (mysqli_num_rows($check) > 0) {
+        $error = "Username sudah terdaftar!";
     } else {
-        $query = "INSERT INTO users (username, password) VALUES ('$username', '$password')";
-        if (mysqli_query($conn, $query)) {
-            header('Location: login.php?msg=registered');
-            exit;
+        $query = mysqli_query($conn, "INSERT INTO users (username, password) VALUES ('$username', '$password')");
+        if ($query) {
+            $success = "Registrasi berhasil! Silakan login.";
+        } else {
+            $error = "Terjadi kesalahan sistem.";
         }
     }
 }
@@ -22,33 +24,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Register Admin - SEMESTA BUKU</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrasi Admin - SemestaBuku</title>
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-    <header>
-        <a href="index.php" class="logo">📚 SEMESTA BUKU</a>
-        <button id="theme-toggle" class="theme-toggle">🌙 Dark Mode</button>
-    </header>
+    <nav class="navbar">
+        <a href="index.php" class="nav-brand">🌿 SemestaBuku</a>
+        <div class="nav-links">
+            <a href="login.php">Login Admin</a>
+        </div>
+    </nav>
 
-    <div class="container" style="max-width: 400px;">
-        <div class="card">
-            <h2>Register Admin</h2>
-            <?php if($message): ?><p style="color:red;"><?= $message ?></p><?php endif; ?>
+    <div class="container">
+        <div class="form-container">
+            <h2 class="section-title" style="text-align: center;">Registrasi Admin</h2>
+            <?php if($error): ?><p style="color: red; text-align: center; margin-bottom: 15px;"><?php echo $error; ?></p><?php endif; ?>
+            <?php if($success): ?><p style="color: green; text-align: center; margin-bottom: 15px;"><?php echo $success; ?></p><?php endif; ?>
             <form method="POST">
                 <div class="form-group">
-                    <label>Username</label>
-                    <input type="text" name="username" required>
+                    <label>Username Baru</label>
+                    <input type="text" name="username" required placeholder="Buat username...">
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" name="password" required>
+                    <input type="password" name="password" required placeholder="Buat password...">
                 </div>
-                <button type="submit" class="btn btn-primary" style="width:100%;">Daftar</button>
+                <button type="submit" class="btn-pill" style="width: 100%; text-align: center;">Daftar Akun</button>
             </form>
-            <p style="margin-top:1rem; text-align:center;">Sudah punya akun? <a href="login.php">Login</a></p>
         </div>
     </div>
-    <script src="assets/js/main.js"></script>
+
+    <footer>
+        <p>&copy; 2026 SemestaBuku.</p>
+    </footer>
 </body>
 </html>

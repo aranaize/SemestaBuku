@@ -1,60 +1,63 @@
 <?php
 session_start();
-require_once 'config/database.php';
+include 'config/database.php';
 
-$message = '';
+$error = '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = mysqli_real_escape_string($conn, $_POST['username']);
     $password = $_POST['password'];
 
-    $result = mysqli_query($conn, "SELECT * FROM users WHERE username = '$username'");
-    if (mysqli_num_rows($result) === 1) {
-        $row = mysqli_fetch_assoc($result);
+    $result = mysqli_query($conn, "SELECT * FROM users WHERE username='$username'");
+    if ($row = mysqli_fetch_assoc($result)) {
         if (password_verify($password, $row['password'])) {
-            $_SESSION['admin_login'] = true;
+            $_SESSION['user_id'] = $row['id'];
             $_SESSION['username'] = $row['username'];
-            header('Location: admin.php');
+            header("Location: admin.php");
             exit;
         }
     }
-    $message = "Username atau Password salah!";
+    $error = "Username atau Password salah!";
 }
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Login Admin - SEMESTA BUKU</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Admin - SemestaBuku</title>
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-    <header>
-        <a href="index.php" class="logo">📚 SEMESTA BUKU</a>
-        <button id="theme-toggle" class="theme-toggle">🌙 Dark Mode</button>
-    </header>
+    <nav class="navbar">
+        <a href="index.php" class="nav-brand">🌿 SemestaBuku</a>
+        <div class="nav-links">
+            <a href="index.php">Kembali ke Beranda</a>
+        </div>
+    </nav>
 
-    <div class="container" style="max-width: 400px;">
-        <div class="card">
-            <h2>Login Admin</h2>
-            <?php if(isset($_GET['msg']) && $_GET['msg'] == 'registered'): ?>
-                <p style="color:green;">Registrasi berhasil! Silakan login.</p>
-            <?php endif; ?>
-            <?php if($message): ?><p style="color:red;"><?= $message ?></p><?php endif; ?>
-            
+    <div class="container">
+        <div class="form-container">
+            <h2 class="section-title" style="text-align: center;">Login Admin</h2>
+            <?php if($error): ?><p style="color: red; text-align: center; margin-bottom: 15px;"><?php echo $error; ?></p><?php endif; ?>
             <form method="POST">
                 <div class="form-group">
                     <label>Username</label>
-                    <input type="text" name="username" required>
+                    <input type="text" name="username" required placeholder="Masukkan username...">
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" name="password" required>
+                    <input type="password" name="password" required placeholder="Masukkan password...">
                 </div>
-                <button type="submit" class="btn btn-primary" style="width:100%;">Login</button>
+                <button type="submit" class="btn-pill" style="width: 100%; text-align: center;">Masuk Dashboard</button>
             </form>
-            <p style="margin-top:1rem; text-align:center;">Belum punya akun? <a href="register.php">Register</a></p>
+            <div style="text-align: center; margin-top: 15px;">
+                <a href="register.php" style="color: var(--primary-green); text-decoration: none; font-size: 14px;">Belum punya akun? Registrasi</a>
+            </div>
         </div>
     </div>
-    <script src="assets/js/main.js"></script>
+
+    <footer>
+        <p>&copy; 2026 SemestaBuku.</p>
+    </footer>
 </body>
 </html>

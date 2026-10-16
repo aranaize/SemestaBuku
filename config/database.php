@@ -1,13 +1,12 @@
 <?php
-
-$host = 'sql113.infinityfree.com'; 
-$user = 'if0_43143021';            
-$pass = 'iniakunaran';      
-$db   = 'if0_43143021_semesta_buku'; 
+$host = "localhost";
+$user = "root";
+$pass = "";
+$db   = "semestabuku";
 
 $conn = mysqli_connect($host, $user, $pass, $db);
 
 if (!$conn) {
-    die("Koneksi Database Gagal: " . mysqli_connect_error());
+    die("Koneksi database gagal: " . mysqli_connect_error());
 }
 ?>
