@@ -1,5 +1,8 @@
 <?php
-// Mengambil konfigurasi dari Environment Variables Railway atau fallback ke localhost
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 $host = getenv('MYSQLHOST') ?: 'localhost';
 $user = getenv('MYSQLUSER') ?: 'root';
 $pass = getenv('MYSQLPASSWORD') ?: '';
